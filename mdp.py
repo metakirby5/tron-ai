@@ -14,6 +14,32 @@ import random
 import numpy as np
 from sys import stderr
 
+config = {
+    'move_list': [
+        [0, 1],
+        [0, -1],
+        [1, 0],
+        [-1, 0]
+    ],
+    'max_iterations': 100,
+    'reward_pit': -10.0,
+    'reward_goal': 10.0,
+    'reward_step': -0.05
+}
+
+dirs = {
+    'forward':  lambda (dx, dy): ( dx,  dy),
+    'backward': lambda (dx, dy): (-dx, -dy),
+    'left':     lambda (dx, dy): (-dy,  dx),
+    'right':    lambda (dx, dy): ( dy, -dx),
+}
+
+types = {
+    tron.FLOOR: 'FLOOR',
+    tron.WALL:  'WALL',
+    tron.ME:    'ME',
+    tron.THEM:  'THEM'
+}
 
 class Graph(object):
     def __init__(self, nodes):
@@ -42,30 +68,11 @@ class Node(object):
 
     def __repr__(self):
         return '{}({}, {}) @ ({}, {})'.format(
-            self.type, self.policy, self.value, self.x, self.y)
+            types[self.type], self.policy, self.value, self.x, self.y)
 
     def add_neighbor(self, direction, neighbor):
         self.neighbors[direction] = neighbor
 
-config = {
-    'move_list': [
-        [0, 1],
-        [0, -1],
-        [1, 0],
-        [-1, 0]
-    ],
-    'max_iterations': 100,
-    'reward_pit': -10.0,
-    'reward_goal': 10.0,
-    'reward_step': -0.05
-}
-
-dirs = {
-    'forward':  lambda (dx, dy): ( dx,  dy),
-    'backward': lambda (dx, dy): (-dx, -dy),
-    'left':     lambda (dx, dy): (-dy,  dx),
-    'right':    lambda (dx, dy): ( dy, -dx),
-}
 
 def build_graph(board, nodes):
 
@@ -97,7 +104,7 @@ def which_move(board):
     print >>stderr, "GRAPH: <<\n", graph, "\n>>"
 
     for src in graph.nodes.flat:
-        print >>stderr, "node:", src.type, ", neigh:", src.neighbors
+        print >>stderr, "node:", types[src.type], ", neigh:", src.neighbors
 
 
     # fill in your code here. it must return one of the following directions:
