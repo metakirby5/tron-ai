@@ -47,6 +47,43 @@ class Node(object):
     def add_neighbor(self, direction, neighbor):
         self.neighbors[direction] = neighbor
 
+config = {
+    'move_list': [
+        [0, 1],
+        [0, -1],
+        [1, 0],
+        [-1, 0]
+    ],
+    'max_iterations': 100,
+    'reward_pit': -10.0,
+    'reward_goal': 10.0,
+    'reward_step': -0.05
+}
+
+dirs = {
+    'forward':  lambda (dx, dy): ( dx,  dy),
+    'backward': lambda (dx, dy): (-dx, -dy),
+    'left':     lambda (dx, dy): (-dy,  dx),
+    'right':    lambda (dx, dy): ( dy, -dx),
+}
+
+def build_graph(board, nodes):
+
+    for node in nodes.flat:
+
+        if node.type == tron.WALL:
+            continue
+
+        for dx, dy in config['move_list']:
+            x = node.x + dx
+            y = node.y + dy
+
+            if 0 <= x < board.width and 0 <= y < board.height:
+                neighbor = nodes[x, y]
+                node.add_neighbor((dx, dy), neighbor)
+
+    return Graph(nodes)
+
 
 def which_move(board):
 
@@ -54,7 +91,14 @@ def which_move(board):
         Node(t, x, y)
         for x, t in enumerate(r)]
         for y, r in enumerate(board.board)])
-    graph = Graph(nodes)
+
+    graph = build_graph(board, nodes)
+
+    print >>stderr, "GRAPH: <<\n", graph, "\n>>"
+
+    for src in graph.nodes.flat:
+        print >>stderr, "node:", src.type, ", neigh:", src.neighbors
+
 
     # fill in your code here. it must return one of the following directions:
     #   tron.NORTH, tron.EAST, tron.SOUTH, tron.WEST
